@@ -1,5 +1,9 @@
 import requests
+import subprocess
 import os
+import io
+import shlex
+import time
 from requests.exceptions import HTTPError, Timeout, ConnectionError
 
 
@@ -16,12 +20,18 @@ def check_request(url_check='http://www.google.com.ar'):
 
 
 def do_ping(hostname='8.8.8.8', iface=None):
-    if iface:
-        ping_cmd = "ping -I {} -c 1 {} &> /dev/null".format(iface, hostname)
+    if iface or os.environ.get('IFACE'):
+        ping_cmd = "ping -I {} -c 1 {}".format(os.environ.get('IFACE', iface), hostname)
     else:
-        ping_cmd = "ping -c 1 {} &> /dev/null".format(hostname)
-    response = os.system(ping_cmd)
-    if response == 0:
-        return True
-    else:
-        return False
+        ping_cmd = "ping -c 1 {}".format(hostname)
+    ping_args = shlex.split(ping_cmd)
+    while True:
+        with io.open(os.devnull, 'wb') as devnull:
+            try:
+                subprocess.check_call(
+                    ping_args,
+                    stdout=devnull, stderr=devnull)
+            except subprocess.CalledProcessError:
+                time.sleep(10)
+            else:
+                return True
