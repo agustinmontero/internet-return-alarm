@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-#IFACE=wlp2s0
 #IFACE=enp1s0
 ALARM_AUDIO_FILE=alarm.wav
 HOST_TO_PING=8.8.8.8
@@ -22,8 +21,8 @@ function play_sound()
 }
 
 function print_date() {
-	local connection_rec_time=$(date +%H:%m)
-	printf "Connection recovery at: %s\n" ${connection_rec_time}
+	local connection_rec_time=$(date +%c)
+	echo "Connection recovery at: ${connection_rec_time}"
 }
 
 
